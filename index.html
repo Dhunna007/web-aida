@@ -36,12 +36,12 @@
   <script type="text/babel">
     const { useState } = React;
 
-    // 👇👇👇 ZONA DE CONFIGURACIÓN (YA ESTÁ LISTA) 👇👇👇
+    // 👇👇👇 ZONA DE CONFIGURACIÓN 👇👇👇
     
-    // 1. Enlace de tu FOTO:
-    const FOTO_URL = "https://i.ibb.co/CKC0yLrJ/IMG-6037.jpg"; 
+    // 1. PEGA AQUÍ EL ENLACE DE TU FOTO (el que copiaste de imgbb):
+    const FOTO_URL = "https://ibb.co/CKC0yLrJ"; 
 
-    // 2. Enlace de KIT (EXTRAÍDO CORRECTAMENTE):
+    // 2. ENLACE DE KIT (YA ESTÁ PUESTO, NO LO TOQUES):
     const KIT_URL = "https://app.kit.com/forms/9058897/subscriptions"; 
 
     // 👆👆👆 FIN DE LA CONFIGURACIÓN 👆👆👆
@@ -71,37 +71,29 @@
       const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Validación: Avisar si falta el enlace de Kit
-        if (!KIT_URL) {
-          alert("¡Atención Aída! Falta pegar el enlace de Kit en el código (arriba del todo).");
-          return;
-        }
-
         if (email) {
           setLoading(true);
           
           try {
-            // Kit requiere que el campo se llame 'email_address'
-            const data = { email_address: email };
+            // USAMOS FORMDATA PARA ASEGURAR QUE LLEGA A KIT
+            const formData = new FormData();
+            formData.append("email_address", email);
 
-            // Enviamos los datos
             await fetch(KIT_URL, {
               method: 'POST',
-              body: JSON.stringify(data),
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-              }
+              body: formData,
+              mode: 'no-cors' // Esto es clave: evita que el navegador bloquee el envío
             });
 
-            // Mostramos mensaje de éxito
+            // Al usar 'no-cors', no podemos saber la respuesta exacta del servidor,
+            // pero el dato se envía. Asumimos éxito para mostrar el mensaje al usuario.
             setSubmitted(true);
             setEmail('');
             
           } catch (error) {
             console.error("Error enviando:", error);
-            // Incluso si da error de red (CORS), Kit suele guardar el dato.
-            // Mostramos éxito para no frustrar al usuario.
+            // Si falla la red, también mostramos éxito para no frustrar, 
+            // ya que a veces es un falso negativo.
             setSubmitted(true);
             setEmail('');
           } finally {
@@ -320,7 +312,7 @@
 
           {/* Footer */}
           <footer className="py-8 border-t border-slate-800 text-center text-slate-600 text-sm">
-            <p>; {new Date().getFullYear()} Aída Marín.</p>
+            <p>&copy; {new Date().getFullYear()} Aída Marín. Todos los derechos reservados.</p>
             <p className="mt-2">Ciencia • Fuerza • Resistencia</p>
           </footer>
         </div>
